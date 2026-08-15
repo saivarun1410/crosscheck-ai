@@ -1,5 +1,9 @@
 # crosscheck-ai
 
+[![npm version](https://img.shields.io/npm/v/crosscheck-ai.svg)](https://www.npmjs.com/package/crosscheck-ai)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js 20+](https://img.shields.io/badge/node-%3E%3D20-339933.svg)](https://nodejs.org/)
+
 Run one coding agent as the author and a different agent as the independent reviewer, with deterministic checks and bounded correction rounds between them.
 
 ```text
@@ -10,7 +14,9 @@ Crosscheck is deliberately code-controlled. Agents do not choose the workflow, a
 
 ## Status
 
-This is an early MVP. It supports local Git repositories and installed Codex and Claude Code CLIs. It does not yet create isolated Git worktrees or call hosted provider SDKs directly.
+The early MVP is published on npm as [`crosscheck-ai`](https://www.npmjs.com/package/crosscheck-ai). The current release is `0.1.0`, licensed under MIT.
+
+It supports local Git repositories and installed Codex and Claude Code CLIs. It does not yet create isolated Git worktrees or call hosted provider SDKs directly. See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Prerequisites
 
@@ -22,23 +28,31 @@ This is an early MVP. It supports local Git repositories and installed Codex and
 
 ## Install and initialize
 
-From this repository during development:
+Install it in the repository where you want to run the author-reviewer loop:
 
 ```bash
+npm install --save-dev crosscheck-ai
+npx crosscheck init
+```
+
+You can also run the published CLI without adding it to your dependencies:
+
+```bash
+npx crosscheck-ai@latest init
+```
+
+For local development of Crosscheck itself:
+
+```bash
+git clone https://github.com/saivarun1410/crosscheck-ai.git
+cd crosscheck-ai
 npm install
 npm run build
 npm link
 crosscheck init
 ```
 
-After the package is published:
-
-```bash
-npm install -D crosscheck-ai
-npx crosscheck init
-```
-
-Edit `crosscheck.yaml` to add your repository's test, lint, type-check, or security commands:
+The initialization command creates `crosscheck.yaml`. Edit it to add your repository's test, lint, type-check, or security commands:
 
 ```yaml
 version: 1
@@ -73,7 +87,30 @@ policy:
   maxDiffBytes: 1000000
 ```
 
-## Run it
+Confirm that the local repository and agent CLIs are ready:
+
+```bash
+npx crosscheck doctor
+```
+
+## How it works
+
+1. Crosscheck validates the configuration and requires a clean working tree by default.
+2. The author agent receives the task and edits the repository.
+3. Deterministic verification commands run against the resulting changes.
+4. The reviewer agent receives the task, diff, and verification evidence in read-only mode.
+5. Valid blocking findings return to the author for a bounded number of correction rounds.
+6. Crosscheck runs verification again and returns a structured decision and audit report.
+
+The author and reviewer are separate configured roles. Either Codex or Claude can fill either role, but an agent does not review its own hidden reasoning or decide the orchestration policy.
+
+## Quick start
+
+Initialize the configuration:
+
+```bash
+npx crosscheck init
+```
 
 Ask Codex to implement and Claude to review:
 
@@ -132,6 +169,16 @@ Exit codes:
 
 These controls reduce risk but are not a complete security boundary. Run untrusted repositories in a disposable container or VM, keep credentials out of the repository, and review changes before committing them.
 
+## Release verification
+
+Every npm publication runs the complete release gate through `prepublishOnly`:
+
+```bash
+npm run check
+```
+
+That command runs TypeScript type-checking, the automated test suite, and the production build. The public `0.1.0` package was also installed from npm and its `crosscheck --help` command was verified independently after publication.
+
 ## Programmatic API
 
 ```ts
@@ -158,4 +205,8 @@ The Codex adapter uses the officially documented non-interactive `codex exec` in
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+## Contributing
+
+Issues and pull requests are welcome. Direct pushes to the default branch are restricted: make changes on a branch or fork, open a pull request, and wait for the required owner review before merging. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development and validation workflow.
