@@ -1,0 +1,33 @@
+version: 1
+
+agents:
+  author:
+    adapter: codex
+    command: codex
+    # model: gpt-5.6-sol
+    maxTurns: 20
+    timeoutMs: 900000
+
+  reviewer:
+    adapter: claude
+    command: claude
+    # model: opus
+    maxTurns: 8
+    timeoutMs: 600000
+
+workspace:
+  baseRef: HEAD
+  requireClean: true
+  includeUntracked: true
+
+verification:
+  commands:
+    - npm test
+    - npm run lint
+  timeoutMs: 120000
+
+policy:
+  maxReviewRounds: 2
+  failOn: high
+  minimumConfidence: 0.65
+  maxDiffBytes: 1000000

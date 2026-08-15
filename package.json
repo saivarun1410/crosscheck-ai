@@ -1,0 +1,48 @@
+{
+  "name": "crosscheck-ai",
+  "version": "0.1.0",
+  "description": "A provider-neutral author-reviewer loop for coding agents.",
+  "keywords": [
+    "ai-agents",
+    "code-review",
+    "codex",
+    "claude-code",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "crosscheck": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "crosscheck.example.yaml"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --emitDeclarationOnly && node build.mjs",
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run build",
+    "prepublishOnly": "npm run check"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "esbuild": "^0.25.9",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
