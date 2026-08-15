@@ -10,9 +10,17 @@
     "developer-tools"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/saivarun1410/crosscheck-ai#readme",
+  "bugs": {
+    "url": "https://github.com/saivarun1410/crosscheck-ai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saivarun1410/crosscheck-ai.git"
+  },
   "type": "module",
   "bin": {
-    "crosscheck": "./dist/cli.js"
+    "crosscheck": "dist/cli.js"
   },
   "exports": {
     ".": {
@@ -23,11 +31,15 @@
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "crosscheck.example.yaml"
   ],
   "engines": {
     "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsc --emitDeclarationOnly && node build.mjs",
