@@ -1,0 +1,45 @@
+# Publishes this package to GitHub Packages, which is what populates the
+# repository's "Packages" sidebar. npmjs.com releases do not appear there —
+# it only lists packages from npm.pkg.github.com.
+#
+# No personal token is needed: Actions' built-in GITHUB_TOKEN can publish once
+# the job is granted packages: write.
+name: Publish to GitHub Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Writes an .npmrc pointing the scope at GitHub Packages.
+          registry-url: https://npm.pkg.github.com
+          scope: '@saivarun1410'
+
+      - run: npm ci
+
+      # GitHub Packages only accepts names scoped to the repository owner, and
+      # this package is published unscoped on npmjs.com. Scope it for this
+      # publish only, so npmjs.com keeps `npm i crosscheck-ai` working while the
+      # GitHub Packages copy is @saivarun1410/crosscheck-ai. package.json in the
+      # repository is untouched.
+      - name: Scope the name for GitHub Packages
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.name='@saivarun1410/'+p.name.replace(/^@[^/]+\\//,'');fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n');console.log('publishing as',p.name)"
+
+      # `npm publish` runs the package's own prepare/prepublishOnly build.
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
